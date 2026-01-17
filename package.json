@@ -1,5 +1,6 @@
 {
-  "name": "ctflife-eduplatform",
+  "name": "ctflife-demo",
+  "homepage": "https://Wilson05478.github.io/ctflife-demo/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
