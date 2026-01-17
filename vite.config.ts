@@ -35,7 +35,15 @@ export default defineConfig(({ mode }) => {
       plugins: [react(),tailwindcss()],
       base: process.env.VITE_BASE_PATH || '/ctfLife',
       build: {
-        chunkSizeWarningLimit: 2000 
+        rollupOptions: {
+            output:{
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                    }
+                }
+            }
+        }
       },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
