@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 
 import { BottomNav, Header } from './components/Layout';
-import { getFinancialAdvice, analyzeReceiptImage, generateQuizQuestions } from './services/geminiService';
 import { 
   View, 
   User, 
@@ -153,12 +152,6 @@ export default function App() {
     }
   };
 
-  const openBotAssist = (context: string) => {
-    setBotContext(context);
-    setChatHistory([{ role: 'model', text: `Hi! I'm your AI tutor. Ready to talk about "${context}"? How can I help?` }]);
-    setShowBotOverlay(true);
-  };
-
   const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
     const userMsg = chatInput;
@@ -172,40 +165,6 @@ export default function App() {
     setIsAiThinking(false);
     setChatHistory(prev => [...prev, { role: 'model', text: response }]);
   };
-
-  const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setIsAnalyzingReceipt(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64Data = (reader.result as string).split(',')[1];
-      const result = await analyzeReceiptImage(base64Data);
-      setIsAnalyzingReceipt(false);
-      if (result && result.storeName) {
-        const newTx: Transaction = {
-          id: Date.now().toString(),
-          storeName: result.storeName,
-          amount: result.amount,
-          date: result.date || new Date().toISOString().split('T')[0],
-          category: result.category as TransactionCategory || TransactionCategory.SHOPPING,
-          isPartner: false
-        };
-        setTransactions([newTx, ...transactions]);
-        notify(`Success! Logged $${result.amount} from ${result.storeName}`);
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
-  };
-
-  // --- VIEWS ---
-
-  
-
- 
-
- 
 
   // Added missing RewardsView implementation
   const RewardsView = () => (
