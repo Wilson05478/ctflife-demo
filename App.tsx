@@ -152,20 +152,6 @@ export default function App() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-    const userMsg = chatInput;
-    setChatInput('');
-    setChatHistory(prev => [...prev, { role: 'user', text: userMsg }]);
-    setIsAiThinking(true);
-
-    const contextStr = `Lesson Context: ${botContext}. User Interests: ${user.interests.join(', ')}.`;
-    const response = await getFinancialAdvice(userMsg, contextStr);
-
-    setIsAiThinking(false);
-    setChatHistory(prev => [...prev, { role: 'model', text: response }]);
-  };
-
   // Added missing RewardsView implementation
   const RewardsView = () => (
     <div className="p-4 pb-24 space-y-6">
@@ -245,53 +231,6 @@ export default function App() {
     </div>
   );
 
-  // --- OVERLAYS ---
-
-  const BotAssistOverlay = () => {
-    if (!showBotOverlay) return null;
-    return (
-      <div className="fixed inset-0 z-[100] bg-slate-900/95 flex flex-col p-4">
-        <div className="flex justify-between items-center mb-6 pt-4">
-           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white"><Bot /></div>
-              <div>
-                 <h4 className="text-white font-bold">AI Tutor</h4>
-                 <p className="text-teal-400 text-[10px] font-bold uppercase tracking-widest">Helping with {botContext}</p>
-              </div>
-           </div>
-           <button onClick={() => setShowBotOverlay(false)} className="text-white bg-white/10 p-2 rounded-xl">Close</button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
-          {chatHistory.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] p-4 rounded-3xl text-sm ${msg.role === 'user' ? 'bg-teal-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none shadow-xl'}`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {isAiThinking && (
-            <div className="flex justify-start">
-              <div className="bg-slate-800 p-4 rounded-3xl rounded-bl-none animate-pulse text-slate-500 text-xs">AI is thinking...</div>
-            </div>
-          )}
-        </div>
-
-        <div className="p-2 bg-slate-800 rounded-3xl flex gap-2">
-          <input 
-            type="text" 
-            placeholder="Ask a question..."
-            value={chatInput}
-            onChange={e => setChatInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-            className="flex-1 bg-transparent text-white px-4 py-3 outline-none"
-          />
-          <button onClick={handleSendMessage} className="bg-teal-600 text-white p-3 rounded-2xl"><Send size={20} /></button>
-        </div>
-      </div>
-    );
-  };
-
   const QuizModal = () => {
     if (!activeQuiz) return null;
     return (
@@ -341,16 +280,6 @@ export default function App() {
     setQuizStep(0);
   };
 
-  const handleGenerateAiQuiz = async () => {
-    setIsGeneratingQuiz(true);
-    const questions = await generateQuizQuestions("saving and small investments");
-    setIsGeneratingQuiz(false);
-    if (questions && questions.length > 0) {
-      setActiveQuiz({ id: 'ai', title: 'Dynamic AI Challenge', reward: 10, completed: false, provider: 'Gemini', thumbnail: '', duration: '' });
-      setQuizStep(1);
-    }
-  };
-
   
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
@@ -364,8 +293,6 @@ export default function App() {
         {view === View.EVENTS && <EventsView />}
       </main>
       {view !== View.LOGIN && view !== View.REGISTER && <BottomNav currentView={view} onChangeView={setView} onLogout={() => setView(View.LOGIN)} />}
-      <QuizModal />
-      <BotAssistOverlay />
       {showNotification && (
         <div className={`fixed top-20 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-2xl z-[300] text-white font-black text-xs animate-bounce ${showNotification.type === 'error' ? 'bg-red-500' : 'bg-teal-600'}`}>
           {showNotification.msg}
